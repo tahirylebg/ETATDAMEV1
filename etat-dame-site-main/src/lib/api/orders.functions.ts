@@ -1,0 +1,129 @@
+import { createServerFn } from "@tanstack/react-start";
+import { eq, desc } from "drizzle-orm";
+import { z } from "zod";
+import { getDb } from "../db/server";
+import { orders, orderItems } from "../db/schema";
+import { requireAuth, requireRole } from "../auth/guard.server";
+import { STATUS_TRANSITIONS, STATUS_TIMESTAMP_FIELD, type OrderStatus } from "../orders/status";
+
+function buildReference() {
+  const now = new Date();
+  const ymd = now.toISOString().slice(0, 10).replace(/-/g, "");
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `ED-${ymd}-${rand}`;
+}
+
+const orderItemInput = z.object({
+  menuItemId: z.string().optional(),
+  name: z.string().min(1),
+  category: z.string().min(1),
+  unitPriceCents: z.number().int().nonnegative(),
+  quantity: z.number().int().positive(),
+  garniture: z.string().optional(),
+});
+
+const createOrderInput = z.object({
+  type: z.enum(["sur_place", "a_emporter"]),
+  tableNumber: z.string().optional(),
+  pickupLabel: z.string().optional(),
+  notes: z.string().optional(),
+  items: z.array(orderItemInput).min(1),
+});
+
+export const createOrder = createServerFn({ method: "POST" })
+  .inputValidator(createOrderInput)
+  .handler(async ({ data }) => {
+    const db = getDb();
+    const orderId = crypto.randomUUID();
+    const totalCents = data.items.reduce(
+      (sum, item) => sum + item.unitPriceCents * item.quantity,
+      0,
+    );
+
+    await db.insert(orders).values({
+      id: orderId,
+      reference: buildReference(),
+      type: data.type,
+      tableNumber: data.tableNumber,
+      pickupLabel: data.pickupLabel,
+      notes: data.notes,
+      totalCents,
+    });
+
+    for (const item of data.items) {
+      await db.insert(orderItems).values({ id: crypto.randomUUID(), orderId, ...item });
+    }
+
+    return { ok: true, orderId };
+  });
+
+export const listOrders = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAuth();
+  const db = getDb();
+  const rows = await db.select().from(orders).orderBy(desc(orders.receivedAt));
+  return rows;
+});
+
+const orderIdInput = z.object({ orderId: z.string() });
+
+export const getOrder = createServerFn({ method: "GET" })
+  .inputValidator(orderIdInput)
+  .handler(async ({ data }) => {
+    await requireAuth();
+    const db = getDb();
+    const [order] = await db.select().from(orders).where(eq(orders.id, data.orderId)).limit(1);
+    if (!order) throw new Error("Commande introuvable.");
+    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, data.orderId));
+    return { order, items };
+  });
+
+const updateStatusInput = z.object({ orderId: z.string() });
+
+export const updateOrderStatus = createServerFn({ method: "POST" })
+  .inputValidator(updateStatusInput)
+  .handler(async ({ data }) => {
+    await requireAuth();
+    const db = getDb();
+    const [order] = await db.select().from(orders).where(eq(orders.id, data.orderId)).limit(1);
+    if (!order) throw new Error("Commande introuvable.");
+
+    const next = STATUS_TRANSITIONS[order.status as OrderStatus];
+    if (!next) throw new Error("Aucune transition possible depuis ce statut.");
+
+    const timestampField = STATUS_TIMESTAMP_FIELD[next];
+    await db
+      .update(orders)
+      .set({
+        status: next,
+        ...(timestampField ? { [timestampField]: new Date().toISOString() } : {}),
+      })
+      .where(eq(orders.id, data.orderId));
+
+    return { ok: true, status: next };
+  });
+
+const flagProblemInput = z.object({ orderId: z.string(), note: z.string().min(1).max(300) });
+
+export const flagOrderProblem = createServerFn({ method: "POST" })
+  .inputValidator(flagProblemInput)
+  .handler(async ({ data }) => {
+    await requireAuth();
+    const db = getDb();
+    await db
+      .update(orders)
+      .set({ problemFlag: true, problemNote: data.note })
+      .where(eq(orders.id, data.orderId));
+    return { ok: true };
+  });
+
+export const cancelOrder = createServerFn({ method: "POST" })
+  .inputValidator(orderIdInput)
+  .handler(async ({ data }) => {
+    await requireRole("admin");
+    const db = getDb();
+    await db
+      .update(orders)
+      .set({ status: "annulee", cancelledAt: new Date().toISOString() })
+      .where(eq(orders.id, data.orderId));
+    return { ok: true };
+  });

@@ -15,7 +15,11 @@ import { Route as QrRouteImport } from './routes/qr'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BackLoginRouteImport } from './routes/back/login'
+import { Route as BackCuisineRouteImport } from './routes/back/cuisine'
+import { Route as BackAdminRouteImport } from './routes/back/admin'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -47,78 +51,126 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
   path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommandeRoute = CommandeRouteImport.update({
+  id: '/commande',
+  path: '/commande',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BackLoginRoute = BackLoginRouteImport.update({
+  id: '/back/login',
+  path: '/back/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BackCuisineRoute = BackCuisineRouteImport.update({
+  id: '/back/cuisine',
+  path: '/back/cuisine',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BackAdminRoute = BackAdminRouteImport.update({
+  id: '/back/admin',
+  path: '/back/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/menu': typeof MenuRoute
   '/qr': typeof QrRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/back/admin': typeof BackAdminRoute
+  '/back/cuisine': typeof BackCuisineRoute
+  '/back/login': typeof BackLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/menu': typeof MenuRoute
   '/qr': typeof QrRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/back/admin': typeof BackAdminRoute
+  '/back/cuisine': typeof BackCuisineRoute
+  '/back/login': typeof BackLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/menu': typeof MenuRoute
   '/qr': typeof QrRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/back/admin': typeof BackAdminRoute
+  '/back/cuisine': typeof BackCuisineRoute
+  '/back/login': typeof BackLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/commande'
     | '/confidentialite'
     | '/mentions-legales'
     | '/menu'
     | '/qr'
     | '/securite'
     | '/sitemap.xml'
+    | '/back/admin'
+    | '/back/cuisine'
+    | '/back/login'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/commande'
     | '/confidentialite'
     | '/mentions-legales'
     | '/menu'
     | '/qr'
     | '/securite'
     | '/sitemap.xml'
+    | '/back/admin'
+    | '/back/cuisine'
+    | '/back/login'
   id:
     | '__root__'
     | '/'
+    | '/commande'
     | '/confidentialite'
     | '/mentions-legales'
     | '/menu'
     | '/qr'
     | '/securite'
     | '/sitemap.xml'
+    | '/back/admin'
+    | '/back/cuisine'
+    | '/back/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CommandeRoute: typeof CommandeRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   MenuRoute: typeof MenuRoute
   QrRoute: typeof QrRoute
   SecuriteRoute: typeof SecuriteRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  BackAdminRoute: typeof BackAdminRoute
+  BackCuisineRoute: typeof BackCuisineRoute
+  BackLoginRoute: typeof BackLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/commande': {
+      id: '/commande'
+      path: '/commande'
+      fullPath: '/commande'
+      preLoaderRoute: typeof CommandeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -172,17 +231,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/back/login': {
+      id: '/back/login'
+      path: '/back/login'
+      fullPath: '/back/login'
+      preLoaderRoute: typeof BackLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/back/cuisine': {
+      id: '/back/cuisine'
+      path: '/back/cuisine'
+      fullPath: '/back/cuisine'
+      preLoaderRoute: typeof BackCuisineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/back/admin': {
+      id: '/back/admin'
+      path: '/back/admin'
+      fullPath: '/back/admin'
+      preLoaderRoute: typeof BackAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CommandeRoute: CommandeRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   MenuRoute: MenuRoute,
   QrRoute: QrRoute,
   SecuriteRoute: SecuriteRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  BackAdminRoute: BackAdminRoute,
+  BackCuisineRoute: BackCuisineRoute,
+  BackLoginRoute: BackLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

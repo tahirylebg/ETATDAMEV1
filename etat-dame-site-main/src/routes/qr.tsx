@@ -11,6 +11,7 @@ export const Route = createFileRoute("/qr")({
 
 function QrPage() {
   const [baseUrl, setBaseUrl] = useState("https://etatdame.fr");
+  const [tableNumber, setTableNumber] = useState("1");
 
   useEffect(() => {
     setBaseUrl(window.location.origin);
@@ -20,6 +21,10 @@ function QrPage() {
 
   function menuUrl() {
     return `${normalizedBaseUrl}/menu`;
+  }
+
+  function tableUrl() {
+    return `${normalizedBaseUrl}/commande?table=${encodeURIComponent(tableNumber)}`;
   }
 
   return (
@@ -77,6 +82,31 @@ function QrPage() {
 
           <div className="mx-auto w-full max-w-md print:max-w-none">
             <QrCard url={menuUrl()} />
+          </div>
+        </section>
+
+        <section className="mt-12 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] print:hidden">
+          <div>
+            <p className="section-kicker text-terracotta">QR par table</p>
+            <h2 className="heading-readable mt-3 text-4xl text-cocoa">QR de commande par table.</h2>
+            <p className="mt-4 max-w-xl leading-relaxed text-cocoa/78">
+              Pointe vers la future commande en ligne, table par table. Pour l'instant affiche une
+              page d'attente.
+            </p>
+            <label className="mt-6 grid gap-2 max-w-xs">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-cocoa/72">
+                Numéro de table
+              </span>
+              <input
+                value={tableNumber}
+                onChange={(event) => setTableNumber(event.target.value)}
+                className="field-input"
+                placeholder="1"
+              />
+            </label>
+          </div>
+          <div className="mx-auto w-full max-w-md">
+            <QrCard url={tableUrl()} />
           </div>
         </section>
       </div>

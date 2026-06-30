@@ -1,0 +1,9 @@
+name = "etat-dame-site"
+compatibility_date = "2026-06-30"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".output/public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "etat-dame-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
