@@ -1,0 +1,266 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-olive: var(--olive);
+  --color-terracotta: var(--terracotta);
+  --color-cream: var(--cream);
+  --color-beige: var(--beige);
+  --color-cocoa: var(--cocoa);
+  --color-cocoa-deep: var(--cocoa-deep);
+  --color-ink: var(--ink);
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+  --font-script: var(--font-script);
+}
+
+:root {
+  --radius: 0.875rem;
+
+  /* Brand palette inspired by the ÉTAT DAME paper menu — cream, beige, chocolat */
+  --cream: oklch(0.965 0.018 80);
+  --cream-warm: oklch(0.945 0.024 78);
+  --beige: oklch(0.905 0.03 75);
+  --cocoa: oklch(0.36 0.06 50);
+  --cocoa-deep: oklch(0.26 0.05 45);
+  --terracotta: oklch(0.58 0.13 42);
+  --olive: oklch(0.5 0.06 115);
+  --ink: oklch(0.22 0.012 60);
+
+  --background: var(--cream);
+  --foreground: var(--cocoa-deep);
+  --card: oklch(0.985 0.012 85);
+  --card-foreground: var(--cocoa-deep);
+  --popover: var(--cream);
+  --popover-foreground: var(--cocoa-deep);
+  --primary: var(--cocoa);
+  --primary-foreground: oklch(0.98 0.012 85);
+  --secondary: var(--terracotta);
+  --secondary-foreground: oklch(0.985 0.012 85);
+  --muted: var(--beige);
+  --muted-foreground: oklch(0.42 0.03 55);
+  --accent: var(--terracotta);
+  --accent-foreground: oklch(0.985 0.012 85);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.985 0.012 85);
+  --border: oklch(0.84 0.03 70);
+  --input: oklch(0.84 0.03 70);
+  --ring: var(--cocoa);
+
+  --font-serif: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-warm: 0 25px 60px -25px color-mix(in oklab, var(--cocoa) 40%, transparent);
+  --shadow-soft: 0 8px 30px -12px color-mix(in oklab, var(--cocoa) 20%, transparent);
+  --shadow-paper:
+    0 1px 0 color-mix(in oklab, var(--cocoa) 8%, transparent),
+    0 12px 40px -18px color-mix(in oklab, var(--cocoa) 18%, transparent);
+  --gradient-warm: linear-gradient(135deg, var(--cocoa-deep) 0%, var(--cocoa) 100%);
+  --gradient-fade: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in oklab, var(--ink) 75%, transparent) 100%
+  );
+  --gradient-cream: linear-gradient(180deg, var(--cream) 0%, var(--cream-warm) 100%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+    -webkit-font-smoothing: antialiased;
+  }
+  a,
+  button,
+  input,
+  select {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+@utility font-script {
+  font-family: var(--font-script);
+}
+@utility section-kicker {
+  font-family: var(--font-script);
+  font-size: clamp(0.82rem, 1.2vw, 1rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+@utility display-readable {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.88;
+}
+@utility heading-readable {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.02;
+}
+@utility shadow-warm {
+  box-shadow: var(--shadow-warm);
+}
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+@utility shadow-paper {
+  box-shadow: var(--shadow-paper);
+}
+@utility gradient-warm {
+  background-image: var(--gradient-warm);
+}
+@utility gradient-fade {
+  background-image: var(--gradient-fade);
+}
+@utility gradient-cream {
+  background-image: var(--gradient-cream);
+}
+@utility field-input {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in oklab, var(--cocoa) 14%, transparent);
+  background: color-mix(in oklab, var(--cream) 84%, white);
+  padding: 0.9rem 1rem;
+  color: var(--cocoa-deep);
+  font-size: 0.95rem;
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 70%, transparent);
+}
+.field-input::placeholder {
+  color: color-mix(in oklab, var(--cocoa) 42%, transparent);
+}
+
+/* Decorative paper-menu dotted leader (used for prices) */
+@utility leader-dots {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--cocoa) 35%, transparent) 1px,
+    transparent 1.2px
+  );
+  background-size: 6px 2px;
+  background-repeat: repeat-x;
+  background-position: bottom 0.4em center;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@utility animate-fade-up {
+  animation: fade-up 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes slow-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+@utility animate-slow-zoom {
+  animation: slow-zoom 18s ease-out forwards;
+}
+
+/* Scroll reveal — applied via IntersectionObserver toggling data-reveal="in" */
+@utility reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[data-reveal="in"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Subtle paper grain */
+@utility paper-grain {
+  background-color: var(--cream);
+  background-image:
+    radial-gradient(color-mix(in oklab, var(--cocoa) 6%, transparent) 1px, transparent 1px),
+    radial-gradient(color-mix(in oklab, var(--cocoa) 4%, transparent) 1px, transparent 1px);
+  background-size:
+    28px 28px,
+    14px 14px;
+  background-position:
+    0 0,
+    14px 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
