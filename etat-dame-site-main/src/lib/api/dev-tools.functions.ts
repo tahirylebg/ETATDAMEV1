@@ -1,9 +1,26 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { getDb } from "../db/server";
-import { orders, orderItems } from "../db/schema";
+import { orders, orderItems, users } from "../db/schema";
 import { requireRole } from "../auth/guard.server";
 import { buildFakeOrder } from "../dev/fake-orders";
+import { hashSecret } from "../auth/hash.server";
+
+const INIT_TOKEN = "ED-INIT-2026-SUPPRIMER-APRES";
+
+export const initAdminPassword = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ token: z.string(), password: z.string().min(8) }))
+  .handler(async ({ data }) => {
+    if (data.token !== INIT_TOKEN) throw new Error("Token invalide.");
+    const db = getDb();
+    const hash = await hashSecret(data.password);
+    await db
+      .update(users)
+      .set({ passwordHash: hash, active: true })
+      .where(eq(users.email, "admin@etatdame.fr"));
+    return { ok: true };
+  });
 
 function buildReference(date: Date) {
   const ymd = date.toISOString().slice(0, 10).replace(/-/g, "");

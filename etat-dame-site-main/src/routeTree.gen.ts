@@ -18,6 +18,7 @@ import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BackLoginRouteImport } from './routes/back/login'
+import { Route as BackInitRouteImport } from './routes/back/init'
 import { Route as BackCuisineRouteImport } from './routes/back/cuisine'
 import { Route as BackAdminRouteImport } from './routes/back/admin'
 
@@ -66,6 +67,11 @@ const BackLoginRoute = BackLoginRouteImport.update({
   path: '/back/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BackInitRoute = BackInitRouteImport.update({
+  id: '/back/init',
+  path: '/back/init',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BackCuisineRoute = BackCuisineRouteImport.update({
   id: '/back/cuisine',
   path: '/back/cuisine',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/back/admin': typeof BackAdminRoute
   '/back/cuisine': typeof BackCuisineRoute
+  '/back/init': typeof BackInitRoute
   '/back/login': typeof BackLoginRoute
 }
 export interface FileRoutesByTo {
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/back/admin': typeof BackAdminRoute
   '/back/cuisine': typeof BackCuisineRoute
+  '/back/init': typeof BackInitRoute
   '/back/login': typeof BackLoginRoute
 }
 export interface FileRoutesById {
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/back/admin': typeof BackAdminRoute
   '/back/cuisine': typeof BackCuisineRoute
+  '/back/init': typeof BackInitRoute
   '/back/login': typeof BackLoginRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/back/admin'
     | '/back/cuisine'
+    | '/back/init'
     | '/back/login'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/back/admin'
     | '/back/cuisine'
+    | '/back/init'
     | '/back/login'
   id:
     | '__root__'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/back/admin'
     | '/back/cuisine'
+    | '/back/init'
     | '/back/login'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BackAdminRoute: typeof BackAdminRoute
   BackCuisineRoute: typeof BackCuisineRoute
+  BackInitRoute: typeof BackInitRoute
   BackLoginRoute: typeof BackLoginRoute
 }
 
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BackLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/back/init': {
+      id: '/back/init'
+      path: '/back/init'
+      fullPath: '/back/init'
+      preLoaderRoute: typeof BackInitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/back/cuisine': {
       id: '/back/cuisine'
       path: '/back/cuisine'
@@ -266,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BackAdminRoute: BackAdminRoute,
   BackCuisineRoute: BackCuisineRoute,
+  BackInitRoute: BackInitRoute,
   BackLoginRoute: BackLoginRoute,
 }
 export const routeTree = rootRouteImport
