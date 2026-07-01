@@ -16,9 +16,9 @@ import { Route as MenuRouteImport } from './routes/menu'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as CommandeRouteImport } from './routes/commande'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BackLoginRouteImport } from './routes/back/login'
-import { Route as BackInitRouteImport } from './routes/back/init'
 import { Route as BackCuisineRouteImport } from './routes/back/cuisine'
 import { Route as BackAdminRouteImport } from './routes/back/admin'
 
@@ -57,6 +57,11 @@ const CommandeRoute = CommandeRouteImport.update({
   path: '/commande',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -65,11 +70,6 @@ const IndexRoute = IndexRouteImport.update({
 const BackLoginRoute = BackLoginRouteImport.update({
   id: '/back/login',
   path: '/back/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BackInitRoute = BackInitRouteImport.update({
-  id: '/back/init',
-  path: '/back/init',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BackCuisineRoute = BackCuisineRouteImport.update({
@@ -85,6 +85,7 @@ const BackAdminRoute = BackAdminRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -94,11 +95,11 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/back/admin': typeof BackAdminRoute
   '/back/cuisine': typeof BackCuisineRoute
-  '/back/init': typeof BackInitRoute
   '/back/login': typeof BackLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -108,12 +109,12 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/back/admin': typeof BackAdminRoute
   '/back/cuisine': typeof BackCuisineRoute
-  '/back/init': typeof BackInitRoute
   '/back/login': typeof BackLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -123,13 +124,13 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/back/admin': typeof BackAdminRoute
   '/back/cuisine': typeof BackCuisineRoute
-  '/back/init': typeof BackInitRoute
   '/back/login': typeof BackLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$'
     | '/commande'
     | '/confidentialite'
     | '/mentions-legales'
@@ -139,11 +140,11 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/back/admin'
     | '/back/cuisine'
-    | '/back/init'
     | '/back/login'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$'
     | '/commande'
     | '/confidentialite'
     | '/mentions-legales'
@@ -153,11 +154,11 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/back/admin'
     | '/back/cuisine'
-    | '/back/init'
     | '/back/login'
   id:
     | '__root__'
     | '/'
+    | '/$'
     | '/commande'
     | '/confidentialite'
     | '/mentions-legales'
@@ -167,12 +168,12 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/back/admin'
     | '/back/cuisine'
-    | '/back/init'
     | '/back/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SplatRoute: typeof SplatRoute
   CommandeRoute: typeof CommandeRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
@@ -182,7 +183,6 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BackAdminRoute: typeof BackAdminRoute
   BackCuisineRoute: typeof BackCuisineRoute
-  BackInitRoute: typeof BackInitRoute
   BackLoginRoute: typeof BackLoginRoute
 }
 
@@ -237,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommandeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -249,13 +256,6 @@ declare module '@tanstack/react-router' {
       path: '/back/login'
       fullPath: '/back/login'
       preLoaderRoute: typeof BackLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/back/init': {
-      id: '/back/init'
-      path: '/back/init'
-      fullPath: '/back/init'
-      preLoaderRoute: typeof BackInitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/back/cuisine': {
@@ -277,6 +277,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SplatRoute: SplatRoute,
   CommandeRoute: CommandeRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
@@ -286,7 +287,6 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BackAdminRoute: BackAdminRoute,
   BackCuisineRoute: BackCuisineRoute,
-  BackInitRoute: BackInitRoute,
   BackLoginRoute: BackLoginRoute,
 }
 export const routeTree = rootRouteImport
