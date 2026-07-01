@@ -25,7 +25,7 @@ function AdminPage() {
   const seedMutation = useMutation({
     mutationFn: () => seedFakeOrders({ data: { count: 8 } }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orders"] }),
-    onError: (e) => alert("Erreur seed: " + String(e)),
+    onError: () => console.error("Erreur seedFakeOrders"),
   });
 
   return (

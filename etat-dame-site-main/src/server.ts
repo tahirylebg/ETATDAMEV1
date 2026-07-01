@@ -62,7 +62,7 @@ function withSecurityHeaders(response: Response): Response {
       "img-src 'self' data: blob: https:",
       "media-src 'self' blob:",
       "frame-src 'self' https://www.google.com https://maps.google.com",
-      "connect-src 'self' https://api.resend.com http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*",
+      "connect-src 'self' https://api.resend.com",
       "form-action 'self'",
     ].join("; "),
   );

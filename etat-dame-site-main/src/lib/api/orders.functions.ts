@@ -24,10 +24,10 @@ const orderItemInput = z.object({
 
 const createOrderInput = z.object({
   type: z.enum(["sur_place", "a_emporter"]),
-  tableNumber: z.string().optional(),
-  pickupLabel: z.string().optional(),
-  notes: z.string().optional(),
-  items: z.array(orderItemInput).min(1),
+  tableNumber: z.string().max(10).optional(),
+  pickupLabel: z.string().max(60).optional(),
+  notes: z.string().max(500).optional(),
+  items: z.array(orderItemInput).min(1).max(30),
 });
 
 export const createOrder = createServerFn({ method: "POST" })

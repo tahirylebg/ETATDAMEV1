@@ -24,7 +24,7 @@ const createUserInput = z.discriminatedUnion("role", [
     role: z.literal("admin"),
     name: z.string().min(1),
     email: z.string().email(),
-    password: z.string().min(6),
+    password: z.string().min(8),
   }),
   z.object({ role: z.literal("cuisine"), name: z.string().min(1), pin: z.string().min(4).max(8) }),
 ]);

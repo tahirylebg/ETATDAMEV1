@@ -10,7 +10,7 @@ export function setSessionCookie(sessionId: string, expiresAt: Date) {
   setCookie(SESSION_COOKIE, sessionId, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     expires: expiresAt,
   });
