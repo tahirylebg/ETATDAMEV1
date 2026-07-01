@@ -48,6 +48,13 @@ function KdsPage() {
   const seenIds = useRef<Set<string>>(new Set());
   const [problemOrderId, setProblemOrderId] = useState<string | null>(null);
   const [problemNote, setProblemNote] = useState("");
+  const [soundEnabled, setSoundEnabled] = useState(false);
+
+  function enableSound() {
+    const ctx = new AudioContext();
+    ctx.resume().then(() => ctx.close());
+    setSoundEnabled(true);
+  }
 
   const { data: orders = [] } = useQuery({
     queryKey: ["orders"],
@@ -59,7 +66,7 @@ function KdsPage() {
     const currentIds = new Set(orders.map((o) => o.id));
     const isFirstLoad = seenIds.current.size === 0;
     const hasNew = !isFirstLoad && orders.some((o) => !seenIds.current.has(o.id));
-    if (hasNew) playBeep();
+    if (hasNew && soundEnabled) playBeep();
     seenIds.current = currentIds;
   }, [orders]);
 
@@ -79,7 +86,15 @@ function KdsPage() {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white p-4">
-      <h1 className="text-3xl font-black mb-4">Écran cuisine</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-black">Écran cuisine</h1>
+        <button
+          onClick={soundEnabled ? undefined : enableSound}
+          className={`rounded-lg px-4 py-2 text-sm font-bold ${soundEnabled ? "bg-green-700 text-white" : "bg-neutral-700 text-neutral-300 animate-pulse"}`}
+        >
+          {soundEnabled ? "🔔 Son activé" : "🔕 Activer le son"}
+        </button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {COLUMNS.map((col) => (
           <div key={col.status} className="bg-neutral-900 rounded-2xl p-3">

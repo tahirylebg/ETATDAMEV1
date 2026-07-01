@@ -10,10 +10,50 @@ const STATUS_LABELS: Record<string, string> = {
   annulee: "Annulée",
 };
 
+function printTicket(detail: { order: { reference: string; type: string; tableNumber?: string | null; totalCents: number; receivedAt: string; notes?: string | null }; items: { id: string; quantity: number; name: string; garniture?: string | null; unitPriceCents: number }[] }) {
+  const { order, items } = detail;
+  const win = window.open("", "_blank", "width=400,height=600");
+  if (!win) return;
+  win.document.write(`<!DOCTYPE html><html><head><title>Ticket ${order.reference}</title>
+  <style>body{font-family:monospace;font-size:14px;margin:20px}hr{border:1px dashed #000}.total{font-weight:bold;font-size:16px}</style>
+  </head><body>
+  <h2 style="text-align:center">ÉTAT DAME</h2>
+  <hr/>
+  <p><b>${order.reference}</b></p>
+  <p>${order.type === "sur_place" ? (order.tableNumber ? `Table ${order.tableNumber}` : "Sur place") : "À emporter"}</p>
+  <p>${new Date(order.receivedAt).toLocaleString("fr-FR")}</p>
+  <hr/>
+  ${items.map(i => `<p>${i.quantity}× ${i.name}${i.garniture ? ` (${i.garniture})` : ""} <span style="float:right">${(i.unitPriceCents / 100).toFixed(2)}€</span></p>`).join("")}
+  <hr/>
+  <p class="total">Total <span style="float:right">${(order.totalCents / 100).toFixed(2)}€</span></p>
+  ${order.notes ? `<hr/><p><i>Note : ${order.notes}</i></p>` : ""}
+  <script>window.onload=()=>{window.print();window.close();}</script>
+  </body></html>`);
+  win.document.close();
+}
+
+function exportCSV(orders: { reference: string; status: string; type: string; totalCents: number; receivedAt: string }[]) {
+  const header = "Référence,Statut,Type,Total (€),Reçue à";
+  const rows = orders.map(o =>
+    [o.reference, STATUS_LABELS[o.status], o.type === "sur_place" ? "Sur place" : "À emporter", (o.totalCents / 100).toFixed(2), new Date(o.receivedAt).toLocaleString("fr-FR")].join(",")
+  );
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `commandes-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function OrdersPanel() {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [cancelNote, setCancelNote] = useState("");
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const { data: orders = [] } = useQuery({
     queryKey: ["orders"],
@@ -31,27 +71,44 @@ export function OrdersPanel() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       setSelectedOrderId(null);
+      setShowCancelConfirm(false);
+      setCancelNote("");
     },
   });
 
-  const filtered = orders.filter((o) => statusFilter === "all" || o.status === statusFilter);
+  const filtered = orders.filter((o) => {
+    const matchStatus = statusFilter === "all" || o.status === statusFilter;
+    const matchSearch = search === "" || o.reference.toLowerCase().includes(search.toLowerCase());
+    return matchStatus && matchSearch;
+  });
 
   return (
     <section className="mt-6">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex flex-wrap items-center gap-2 mb-3">
         <h2 className="text-xl font-black text-cocoa">Commandes</h2>
+        <input
+          type="text"
+          placeholder="Rechercher une référence…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm"
+        />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="ml-auto rounded-lg border border-cocoa/20 px-3 py-1"
+          className="rounded-lg border border-cocoa/20 px-3 py-1"
         >
           <option value="all">Tous les statuts</option>
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
+            <option key={value} value={value}>{label}</option>
           ))}
         </select>
+        <button
+          onClick={() => exportCSV(filtered)}
+          className="ml-auto rounded-lg border border-cocoa/20 px-3 py-1 text-sm font-bold hover:bg-cocoa/10"
+        >
+          Export CSV
+        </button>
       </div>
 
       <table className="w-full text-sm border-collapse">
@@ -87,12 +144,10 @@ export function OrdersPanel() {
       </table>
 
       {selectedOrderId && detail && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-card rounded-2xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-black text-cocoa mb-2">{detail.order.reference}</h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              {STATUS_LABELS[detail.order.status]}
-            </p>
+            <h3 className="text-lg font-black text-cocoa mb-1">{detail.order.reference}</h3>
+            <p className="text-sm text-muted-foreground mb-3">{STATUS_LABELS[detail.order.status]}</p>
             <ul className="text-sm space-y-1 mb-4">
               {detail.items.map((item) => (
                 <li key={item.id}>
@@ -101,22 +156,56 @@ export function OrdersPanel() {
                 </li>
               ))}
             </ul>
-            <div className="flex gap-2">
-              {detail.order.status !== "servie" && detail.order.status !== "annulee" && (
+
+            {showCancelConfirm ? (
+              <div className="mb-4">
+                <p className="text-sm font-bold text-red-700 mb-2">Motif d'annulation (optionnel)</p>
+                <textarea
+                  className="w-full rounded-lg border border-cocoa/20 p-2 text-sm mb-2"
+                  rows={2}
+                  placeholder="Ex: client absent, rupture produit…"
+                  value={cancelNote}
+                  onChange={(e) => setCancelNote(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => cancelMutation.mutate(detail.order.id)}
+                    className="flex-1 rounded-lg bg-red-700 text-white px-4 py-2 font-bold"
+                  >
+                    Confirmer l'annulation
+                  </button>
+                  <button
+                    onClick={() => { setShowCancelConfirm(false); setCancelNote(""); }}
+                    className="rounded-lg bg-neutral-200 px-4 py-2"
+                  >
+                    Retour
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2 flex-wrap">
                 <button
-                  onClick={() => cancelMutation.mutate(detail.order.id)}
-                  className="rounded-lg bg-red-700 text-white px-4 py-2 font-bold"
+                  onClick={() => printTicket(detail)}
+                  className="rounded-lg bg-cocoa text-cream px-4 py-2 font-bold"
                 >
-                  Annuler la commande
+                  🖨 Imprimer
                 </button>
-              )}
-              <button
-                onClick={() => setSelectedOrderId(null)}
-                className="rounded-lg bg-neutral-200 px-4 py-2"
-              >
-                Fermer
-              </button>
-            </div>
+                {detail.order.status !== "servie" && detail.order.status !== "annulee" && (
+                  <button
+                    onClick={() => setShowCancelConfirm(true)}
+                    className="rounded-lg bg-red-700 text-white px-4 py-2 font-bold"
+                  >
+                    Annuler
+                  </button>
+                )}
+                <button
+                  onClick={() => { setSelectedOrderId(null); setShowCancelConfirm(false); }}
+                  className="rounded-lg bg-neutral-200 px-4 py-2"
+                >
+                  Fermer
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
