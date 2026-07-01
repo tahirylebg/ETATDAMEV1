@@ -6,4 +6,5 @@ pages_build_output_dir = ".output/public"
 [[d1_databases]]
 binding = "DB"
 database_name = "etat-dame-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "163c62bd-0cfd-4382-aadd-d6d54f42ff1d"
+migrations_dir = "drizzle"

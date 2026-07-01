@@ -25,6 +25,7 @@ function AdminPage() {
   const seedMutation = useMutation({
     mutationFn: () => seedFakeOrders({ data: { count: 8 } }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orders"] }),
+    onError: (e) => alert("Erreur seed: " + String(e)),
   });
 
   return (
@@ -33,14 +34,13 @@ function AdminPage() {
       <OrdersPanel />
       <DashboardPanel />
       <UsersPanel />
-      {import.meta.env.DEV && (
-        <button
-          onClick={() => seedMutation.mutate()}
-          className="rounded-lg bg-cocoa text-cream font-bold px-4 py-2"
-        >
-          Simuler des commandes
-        </button>
-      )}
+      <button
+        onClick={() => seedMutation.mutate()}
+        disabled={seedMutation.isPending}
+        className="rounded-lg bg-cocoa text-cream font-bold px-4 py-2 disabled:opacity-50"
+      >
+        {seedMutation.isPending ? "Génération…" : "Simuler des commandes"}
+      </button>
     </main>
   );
 }
