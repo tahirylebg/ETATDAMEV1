@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { getCurrentUser } from "@/lib/api/auth.functions";
+import { BEEP_WAV } from "@/lib/dev/beep";
 import { listOrders, updateOrderStatus, flagOrderProblem } from "@/lib/api/orders.functions";
 import { elapsedColorBucket } from "@/lib/orders/status";
 
@@ -31,16 +32,15 @@ const COLOR_CLASSES: Record<string, string> = {
   red: "bg-red-600",
 };
 
+let beepAudio: HTMLAudioElement | null = null;
+
 function playBeep() {
-  const ctx = new AudioContext();
-  const osc = ctx.createOscillator();
-  osc.frequency.value = 880;
-  osc.connect(ctx.destination);
-  osc.start();
-  setTimeout(() => {
-    osc.stop();
-    ctx.close();
-  }, 200);
+  if (!beepAudio) {
+    beepAudio = new Audio(BEEP_WAV);
+    beepAudio.volume = 0.7;
+  }
+  beepAudio.currentTime = 0;
+  beepAudio.play().catch(() => {});
 }
 
 function KdsPage() {
