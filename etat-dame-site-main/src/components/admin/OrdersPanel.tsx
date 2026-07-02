@@ -125,37 +125,49 @@ export function OrdersPanel() {
         </button>
       </div>
 
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b border-cocoa/20">
-            <th className="py-2">Référence</th>
-            <th>Statut</th>
-            <th>Type</th>
-            <th>Total</th>
-            <th>Reçue à</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((order) => (
-            <tr key={order.id} className="border-b border-cocoa/10">
-              <td className="py-2">{order.reference}</td>
-              <td>{STATUS_LABELS[order.status]}</td>
-              <td>{order.type === "sur_place" ? "Sur place" : "À emporter"}</td>
-              <td>{(order.totalCents / 100).toFixed(2)}€</td>
-              <td>{new Date(order.receivedAt).toLocaleString("fr-FR")}</td>
-              <td>
-                <button
-                  onClick={() => setSelectedOrderId(order.id)}
-                  className="text-terracotta underline"
-                >
-                  Détail
-                </button>
-              </td>
+      <div className="rounded-2xl border border-cocoa/14 bg-card shadow-paper overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-cocoa/6 text-left">
+              <th className="px-4 py-3 font-black text-cocoa/70 text-xs uppercase tracking-wide">Référence</th>
+              <th className="px-4 py-3 font-black text-cocoa/70 text-xs uppercase tracking-wide">Statut</th>
+              <th className="px-4 py-3 font-black text-cocoa/70 text-xs uppercase tracking-wide">Type</th>
+              <th className="px-4 py-3 font-black text-cocoa/70 text-xs uppercase tracking-wide">Total</th>
+              <th className="px-4 py-3 font-black text-cocoa/70 text-xs uppercase tracking-wide">Reçue à</th>
+              <th className="px-4 py-3" aria-label="Actions"></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-cocoa/8">
+            {filtered.map((order) => (
+              <tr key={order.id} className="hover:bg-cocoa/4 transition-colors">
+                <td className="px-4 py-3 font-mono font-bold text-cocoa text-xs">{order.reference}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                    order.status === "recue"         ? "bg-orange-100 text-orange-700" :
+                    order.status === "en_preparation" ? "bg-blue-100 text-blue-700" :
+                    order.status === "prete"          ? "bg-emerald-100 text-emerald-700" :
+                    order.status === "servie"         ? "bg-cocoa/10 text-cocoa/60" :
+                                                        "bg-red-100 text-red-700"
+                  }`}>
+                    {STATUS_LABELS[order.status]}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-cocoa/70">{order.type === "sur_place" ? "🪑 Sur place" : "📦 À emporter"}</td>
+                <td className="px-4 py-3 font-bold text-cocoa">{(order.totalCents / 100).toFixed(2)}€</td>
+                <td className="px-4 py-3 text-cocoa/50 text-xs">{new Date(order.receivedAt).toLocaleString("fr-FR")}</td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => setSelectedOrderId(order.id)}
+                    className="rounded-lg bg-cocoa/8 hover:bg-cocoa/14 text-cocoa text-xs font-bold px-3 py-1.5 transition-colors"
+                  >
+                    Détail
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {selectedOrderId && detail && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
