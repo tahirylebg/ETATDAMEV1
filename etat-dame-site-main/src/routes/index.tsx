@@ -662,8 +662,8 @@ function Footer() {
       </div>
       <div className="mx-auto mt-10 max-w-7xl border-t border-cream/10 pt-5 text-xs text-cream/64 flex items-center justify-between">
         <span>© {new Date().getFullYear()} ÉTAT DAME. Tous droits réservés.</span>
-        <a href="/back/login" className="text-cream/30 hover:text-cream/60 transition-colors">
-          Espace pro
+        <a href="/back/login" className="inline-flex items-center gap-1.5 rounded-full border border-cream/20 px-3 py-1 text-xs font-semibold text-cream/60 hover:border-cream/40 hover:text-cream/90 transition-colors">
+          ⚙ Espace pro
         </a>
       </div>
     </footer>
