@@ -58,28 +58,37 @@ function LoginPage() {
         </div>
         {mode === "admin" ? (
           <>
+            <label htmlFor="login-email" className="block text-sm font-medium text-cocoa/70 mb-1">Email</label>
             <input
-              className="field-input mb-2 w-full"
-              placeholder="Email"
+              id="login-email"
+              className="field-input mb-3 w-full"
+              type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+            <label htmlFor="login-password" className="block text-sm font-medium text-cocoa/70 mb-1">Mot de passe</label>
             <input
+              id="login-password"
               className="field-input mb-4 w-full"
-              placeholder="Mot de passe"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </>
         ) : (
-          <input
-            className="field-input mb-4 w-full"
-            placeholder="Code PIN"
-            inputMode="numeric"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-          />
+          <>
+            <label htmlFor="login-pin" className="block text-sm font-medium text-cocoa/70 mb-1">Code PIN</label>
+            <input
+              id="login-pin"
+              className="field-input mb-4 w-full"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+            />
+          </>
         )}
         {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
         <button type="submit" className="w-full rounded-lg bg-cocoa text-cream font-bold py-2">

@@ -89,19 +89,25 @@ export function OrdersPanel() {
     <section className="mt-6">
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <h2 className="text-xl font-black text-cocoa">Commandes</h2>
-        <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
+        <label htmlFor="orders-date-from" className="sr-only">Du</label>
+        <input id="orders-date-from" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
           className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm" />
-        <span className="text-cocoa/40 text-sm">→</span>
-        <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
+        <span className="text-cocoa/40 text-sm" aria-hidden="true">→</span>
+        <label htmlFor="orders-date-to" className="sr-only">Au</label>
+        <input id="orders-date-to" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
           className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm" />
+        <label htmlFor="orders-search" className="sr-only">Rechercher par référence</label>
         <input
+          id="orders-search"
           type="text"
           placeholder="Rechercher…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm"
         />
+        <label htmlFor="orders-status" className="sr-only">Filtrer par statut</label>
         <select
+          id="orders-status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm"
