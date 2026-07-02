@@ -24,26 +24,36 @@ export function DashboardPanel() {
         </div>
       </div>
 
-      <div className="h-64 mb-6">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data.ordersByDay}>
-            <XAxis dataKey="day" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="count" fill="#4a2a18" />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="rounded-2xl bg-card border border-cocoa/14 p-5 shadow-paper mb-4">
+        <h3 className="text-base font-black text-cocoa mb-3">Commandes par jour</h3>
+        <div className="h-56">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data.ordersByDay}>
+              <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+              <Tooltip />
+              <Bar dataKey="count" fill="#4a2a18" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
-      <h3 className="text-lg font-bold text-cocoa mb-2">Plats les plus vendus</h3>
-      <ul className="text-sm space-y-1">
-        {data.topDishes.map((dish) => (
-          <li key={dish.name} className="flex justify-between border-b border-cocoa/10 py-1">
-            <span>{dish.name}</span>
-            <span className="font-bold">{dish.count}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="rounded-2xl bg-card border border-cocoa/14 p-5 shadow-paper">
+        <h3 className="text-base font-black text-cocoa mb-3">Plats les plus vendus</h3>
+        <ul className="space-y-2">
+          {data.topDishes.map((dish, i) => (
+            <li key={dish.name} className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-xs font-black text-cocoa/30 w-4 shrink-0">{i + 1}</span>
+                <span className="text-sm text-cocoa truncate">{dish.name}</span>
+              </div>
+              <span className="shrink-0 rounded-full bg-cocoa/10 text-cocoa text-xs font-black px-2.5 py-0.5">
+                {dish.count}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

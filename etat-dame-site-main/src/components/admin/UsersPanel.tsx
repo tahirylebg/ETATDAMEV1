@@ -35,24 +35,31 @@ export function UsersPanel() {
     <section className="mt-8">
       <h2 className="text-xl font-black text-cocoa mb-3">Utilisateurs</h2>
 
-      <ul className="text-sm mb-4 space-y-1">
-        {users.map((u) => (
-          <li
-            key={u.id}
-            className="flex items-center justify-between border-b border-cocoa/10 py-1"
-          >
-            <span>
-              {u.name} — {u.role} {u.email ? `(${u.email})` : ""} {!u.active && "(désactivé)"}
-            </span>
-            <button
-              onClick={() => toggleMutation.mutate({ userId: u.id, active: !u.active })}
-              className="text-terracotta underline text-xs"
+      <div className="rounded-2xl bg-card border border-cocoa/14 p-5 shadow-paper mb-4">
+        <ul className="space-y-2">
+          {users.map((u) => (
+            <li
+              key={u.id}
+              className="flex items-center justify-between gap-3 rounded-xl bg-cocoa/4 px-4 py-2.5"
             >
-              {u.active ? "Désactiver" : "Activer"}
-            </button>
-          </li>
-        ))}
-      </ul>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-black ${u.role === "admin" ? "bg-terracotta/15 text-terracotta" : "bg-cocoa/10 text-cocoa"}`}>
+                  {u.role}
+                </span>
+                <span className="text-sm font-medium text-cocoa truncate">{u.name}</span>
+                {u.email && <span className="text-xs text-cocoa/40 truncate hidden sm:block">({u.email})</span>}
+                {!u.active && <span className="text-xs text-cocoa/30">(désactivé)</span>}
+              </div>
+              <button
+                onClick={() => toggleMutation.mutate({ userId: u.id, active: !u.active })}
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-colors ${u.active ? "bg-red-100 text-red-700 hover:bg-red-200" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"}`}
+              >
+                {u.active ? "Désactiver" : "Activer"}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="rounded-xl bg-card p-4 border border-cocoa/14 max-w-sm">
         <h3 className="font-bold text-cocoa mb-2">Créer un compte</h3>
