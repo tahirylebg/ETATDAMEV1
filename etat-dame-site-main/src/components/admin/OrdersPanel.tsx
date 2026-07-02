@@ -170,9 +170,14 @@ export function OrdersPanel() {
       </div>
 
       {selectedOrderId && detail && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="order-dialog-title"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+        >
           <div className="bg-card rounded-2xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-black text-cocoa mb-1">{detail.order.reference}</h3>
+            <h3 id="order-dialog-title" className="text-lg font-black text-cocoa mb-1">{detail.order.reference}</h3>
             <p className="text-sm text-muted-foreground mb-3">{STATUS_LABELS[detail.order.status]}</p>
             <ul className="text-sm space-y-1 mb-4">
               {detail.items.map((item) => (
@@ -185,8 +190,9 @@ export function OrdersPanel() {
 
             {showCancelConfirm ? (
               <div className="mb-4">
-                <p className="text-sm font-bold text-red-700 mb-2">Motif d'annulation (optionnel)</p>
+                <label htmlFor="cancel-note" className="block text-sm font-bold text-red-700 mb-2">Motif d'annulation (optionnel)</label>
                 <textarea
+                  id="cancel-note"
                   className="w-full rounded-lg border border-cocoa/20 p-2 text-sm mb-2"
                   rows={2}
                   placeholder="Ex: client absent, rupture produit…"

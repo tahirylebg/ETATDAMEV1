@@ -40,18 +40,20 @@ function LoginPage() {
         className="w-full max-w-sm rounded-2xl border border-cocoa/14 bg-card p-6 shadow-paper"
       >
         <h1 className="text-xl font-black text-cocoa mb-4">Connexion back-office</h1>
-        <div className="flex gap-2 mb-4">
+        <div role="group" aria-label="Type de compte" className="flex gap-2 mb-4">
           <button
             type="button"
+            aria-pressed={mode === "admin"}
             onClick={() => setMode("admin")}
-            className={mode === "admin" ? "font-bold underline" : ""}
+            className={mode === "admin" ? "font-bold underline" : "text-cocoa/50"}
           >
             Admin
           </button>
           <button
             type="button"
+            aria-pressed={mode === "cuisine"}
             onClick={() => setMode("cuisine")}
-            className={mode === "cuisine" ? "font-bold underline" : ""}
+            className={mode === "cuisine" ? "font-bold underline" : "text-cocoa/50"}
           >
             Cuisine
           </button>
@@ -90,7 +92,7 @@ function LoginPage() {
             />
           </>
         )}
-        {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
+        {error && <p id="login-error" role="alert" className="text-red-600 text-sm mb-2">{error}</p>}
         <button type="submit" className="w-full rounded-lg bg-cocoa text-cream font-bold py-2">
           Se connecter
         </button>

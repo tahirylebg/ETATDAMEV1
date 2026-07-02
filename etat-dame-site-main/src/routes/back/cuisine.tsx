@@ -108,13 +108,17 @@ function KdsPage() {
           </span>
           <button
             onClick={soundEnabled ? undefined : enableSound}
+            aria-pressed={soundEnabled}
+            aria-label={soundEnabled ? "Son activé" : "Activer le son"}
             className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${soundEnabled ? "bg-green-600/20 text-green-400 border border-green-600/30" : "bg-white/6 text-white/40 border border-white/10 animate-pulse"}`}
           >
-            {soundEnabled ? "🔔 Son activé" : "🔕 Son"}
+            <span aria-hidden="true">{soundEnabled ? "🔔" : "🔕"}</span>
+            <span className="ml-1">{soundEnabled ? "Son activé" : "Son"}</span>
           </button>
           {soundEnabled && (
             <button
               onClick={() => playBeep()}
+              aria-label="Tester le son"
               className="rounded-lg px-3 py-1.5 text-xs font-bold bg-white/6 border border-white/10 text-white/50"
             >
               Test
@@ -196,9 +200,10 @@ function KdsPage() {
                           )}
                           <button
                             onClick={() => setProblemOrderId(order.id)}
+                            aria-label="Signaler un problème"
                             className="rounded-lg bg-red-900/50 border border-red-700/40 px-3 py-2.5 text-red-300 hover:bg-red-800/60 transition-colors text-base"
                           >
-                            ⚠
+                            <span aria-hidden="true">⚠</span>
                           </button>
                         </div>
                       </div>
@@ -213,11 +218,18 @@ function KdsPage() {
 
       {/* Problem modal */}
       {problemOrderId && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="problem-dialog-title"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        >
           <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-black mb-1">Signaler un problème</h3>
+            <h3 id="problem-dialog-title" className="text-lg font-black mb-1">Signaler un problème</h3>
             <p className="text-white/40 text-sm mb-4">Décris le problème rencontré sur cette commande.</p>
+            <label htmlFor="problem-note" className="sr-only">Description du problème</label>
             <textarea
+              id="problem-note"
               className="w-full rounded-xl bg-white/5 border border-white/10 p-3 mb-4 text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 resize-none"
               rows={3}
               value={problemNote}
