@@ -1,7 +1,7 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { getCurrentUser } from "@/lib/api/auth.functions";
+import { getCurrentUser, logout } from "@/lib/api/auth.functions";
 import { BEEP_WAV } from "@/lib/dev/beep";
 import { listOrders, updateOrderStatus, flagOrderProblem } from "@/lib/api/orders.functions";
 import { elapsedColorBucket } from "@/lib/orders/status";
@@ -44,8 +44,13 @@ function playBeep() {
 }
 
 function KdsPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const seenIds = useRef<Set<string>>(new Set());
+  const logoutMutation = useMutation({
+    mutationFn: () => logout(),
+    onSuccess: () => navigate({ to: "/back/login" }),
+  });
   const [problemOrderId, setProblemOrderId] = useState<string | null>(null);
   const [problemNote, setProblemNote] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(false);
@@ -115,6 +120,12 @@ function KdsPage() {
               Test
             </button>
           )}
+          <button
+            onClick={() => logoutMutation.mutate()}
+            className="rounded-lg px-3 py-1.5 text-xs font-bold bg-white/6 border border-white/10 text-white/50 hover:text-white/80"
+          >
+            Déconnexion
+          </button>
         </div>
       </header>
 

@@ -49,15 +49,18 @@ function exportCSV(orders: { reference: string; status: string; type: string; to
 
 export function OrdersPanel() {
   const queryClient = useQueryClient();
+  const today = new Date().toISOString().slice(0, 10);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState(today);
+  const [dateTo, setDateTo] = useState(today);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [cancelNote, setCancelNote] = useState("");
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const { data: orders = [] } = useQuery({
-    queryKey: ["orders"],
-    queryFn: () => listOrders(),
+    queryKey: ["orders", dateFrom, dateTo],
+    queryFn: () => listOrders({ data: { dateFrom, dateTo } }),
   });
 
   const { data: detail } = useQuery({
@@ -86,9 +89,14 @@ export function OrdersPanel() {
     <section className="mt-6">
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <h2 className="text-xl font-black text-cocoa">Commandes</h2>
+        <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
+          className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm" />
+        <span className="text-cocoa/40 text-sm">→</span>
+        <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
+          className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm" />
         <input
           type="text"
-          placeholder="Rechercher une référence…"
+          placeholder="Rechercher…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm"
@@ -96,7 +104,7 @@ export function OrdersPanel() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-cocoa/20 px-3 py-1"
+          className="rounded-lg border border-cocoa/20 px-3 py-1 text-sm"
         >
           <option value="all">Tous les statuts</option>
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
