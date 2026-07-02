@@ -21,15 +21,15 @@ export const Route = createFileRoute("/back/cuisine")({
 });
 
 const COLUMNS = [
-  { status: "recue", label: "Nouvelles" },
-  { status: "en_preparation", label: "En préparation" },
-  { status: "prete", label: "Prêtes" },
+  { status: "recue", label: "Nouvelles", topBar: "bg-orange-500", badge: "bg-orange-500 text-white", colBg: "bg-orange-950/20" },
+  { status: "en_preparation", label: "En préparation", topBar: "bg-blue-500", badge: "bg-blue-500 text-white", colBg: "bg-blue-950/20" },
+  { status: "prete", label: "Prêtes", topBar: "bg-emerald-500", badge: "bg-emerald-500 text-white", colBg: "bg-emerald-950/20" },
 ] as const;
 
-const COLOR_CLASSES: Record<string, string> = {
-  green: "bg-green-600",
-  orange: "bg-orange-500",
-  red: "bg-red-600",
+const ELAPSED_COLORS: Record<string, { dot: string; border: string; cardBg: string; timeColor: string }> = {
+  green:  { dot: "bg-emerald-400", border: "border-l-emerald-400", cardBg: "bg-emerald-950/30",  timeColor: "text-emerald-400" },
+  orange: { dot: "bg-orange-400",  border: "border-l-orange-400",  cardBg: "bg-orange-950/30",   timeColor: "text-orange-400" },
+  red:    { dot: "bg-red-400",     border: "border-l-red-400",     cardBg: "bg-red-950/40",      timeColor: "text-red-400" },
 };
 
 let beepAudio: HTMLAudioElement | null = null;
@@ -86,100 +86,143 @@ function KdsPage() {
     },
   });
 
+  const now = new Date();
+
   return (
-    <main className="min-h-screen bg-neutral-950 text-white p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-black">Écran cuisine</h1>
-        <div className="flex gap-2">
+    <main className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 border-b border-white/8 bg-[#111]">
+        <div className="flex items-center gap-3">
+          <span className="text-xl font-black tracking-tight">ÉTAT DAME</span>
+          <span className="text-white/30 text-lg">·</span>
+          <span className="text-white/50 text-sm font-medium">Écran cuisine</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-white/30 text-sm">
+            {now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+          </span>
           <button
             onClick={soundEnabled ? undefined : enableSound}
-            className={`rounded-lg px-4 py-2 text-sm font-bold ${soundEnabled ? "bg-green-700 text-white" : "bg-neutral-700 text-neutral-300 animate-pulse"}`}
+            className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${soundEnabled ? "bg-green-600/20 text-green-400 border border-green-600/30" : "bg-white/6 text-white/40 border border-white/10 animate-pulse"}`}
           >
-            {soundEnabled ? "🔔 Son activé" : "🔕 Activer le son"}
+            {soundEnabled ? "🔔 Son activé" : "🔕 Son"}
           </button>
           {soundEnabled && (
             <button
               onClick={() => playBeep()}
-              className="rounded-lg px-4 py-2 text-sm font-bold bg-neutral-700 text-white"
+              className="rounded-lg px-3 py-1.5 text-xs font-bold bg-white/6 border border-white/10 text-white/50"
             >
-              🔊 Test son
+              Test
             </button>
           )}
         </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {COLUMNS.map((col) => (
-          <div key={col.status} className="bg-neutral-900 rounded-2xl p-3">
-            <h2 className="text-xl font-bold mb-3">{col.label}</h2>
-            <div className="space-y-3">
-              {orders
-                .filter((o) => o.status === col.status)
-                .map((order) => {
+      </header>
+
+      {/* Columns */}
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-0 divide-x divide-white/6">
+        {COLUMNS.map((col) => {
+          const colOrders = orders.filter((o) => o.status === col.status);
+          return (
+            <div key={col.status} className={`flex flex-col ${col.colBg}`}>
+              {/* Column header */}
+              <div className="px-4 pt-0">
+                <div className={`h-1 ${col.topBar} rounded-b-full mb-3`} />
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-xs font-black uppercase tracking-widest text-white/60">{col.label}</h2>
+                  <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${col.badge}`}>
+                    {colOrders.length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Orders */}
+              <div className="flex-1 px-3 pb-3 space-y-3 overflow-y-auto">
+                {colOrders.length === 0 && (
+                  <p className="text-center text-white/20 text-sm mt-8">Aucune commande</p>
+                )}
+                {colOrders.map((order) => {
                   const color = elapsedColorBucket(order.receivedAt);
+                  const { dot, border, cardBg, timeColor } = ELAPSED_COLORS[color];
+                  const receivedAt = new Date(order.receivedAt);
+                  const elapsed = Math.floor((now.getTime() - receivedAt.getTime()) / 60000);
+
                   return (
-                    <div key={order.id} className="rounded-xl bg-neutral-800 p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-lg font-bold">{order.reference}</span>
-                        <span
-                          className={`h-3 w-3 rounded-full ${COLOR_CLASSES[color]}`}
-                          title={color}
-                        />
-                      </div>
-                      <p className="text-sm text-neutral-300 mb-2">
-                        {order.type === "sur_place"
-                          ? order.tableNumber ? `Table ${order.tableNumber}` : "Sur place"
-                          : "À emporter"}
-                      </p>
-                      {order.problemFlag && (
-                        <p className="text-sm text-red-400 font-bold mb-2">⚠ {order.problemNote}</p>
-                      )}
-                      <div className="flex gap-2">
-                        {col.status !== "prete" && (
-                          <button
-                            onClick={() => advanceMutation.mutate(order.id)}
-                            className="flex-1 rounded-lg bg-green-600 py-3 text-lg font-bold"
-                          >
-                            Étape suivante
-                          </button>
+                    <div
+                      key={order.id}
+                      className={`rounded-xl ${cardBg} border border-white/10 border-l-4 ${border}`}
+                    >
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-1">
+                          <span className="text-base font-black tracking-tight text-white">{order.reference}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-xs font-bold ${timeColor}`}>{elapsed}min</span>
+                            <span className={`h-2.5 w-2.5 rounded-full ${dot}`} />
+                          </div>
+                        </div>
+                        <p className="text-sm font-medium text-white/70 mb-3">
+                          {order.type === "sur_place"
+                            ? order.tableNumber ? `🪑 Table ${order.tableNumber}` : "🪑 Sur place"
+                            : "📦 À emporter"}
+                        </p>
+                        {order.problemFlag && (
+                          <p className="text-xs text-red-300 font-bold mb-3 bg-red-900/50 border border-red-700/40 rounded-lg px-3 py-2">
+                            ⚠ {order.problemNote}
+                          </p>
                         )}
-                        <button
-                          onClick={() => setProblemOrderId(order.id)}
-                          className="rounded-lg bg-red-700 px-4 py-3 text-lg font-bold"
-                        >
-                          ⚠
-                        </button>
+                        <div className="flex gap-2">
+                          {col.status !== "prete" && (
+                            <button
+                              onClick={() => advanceMutation.mutate(order.id)}
+                              disabled={advanceMutation.isPending}
+                              className={`flex-1 rounded-lg py-2.5 text-sm font-black transition-colors disabled:opacity-50 ${
+                                col.status === "recue"
+                                  ? "bg-orange-500 hover:bg-orange-400 text-white"
+                                  : "bg-emerald-500 hover:bg-emerald-400 text-white"
+                              }`}
+                            >
+                              {col.status === "recue" ? "▶ Démarrer" : "✓ Prête"}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setProblemOrderId(order.id)}
+                            className="rounded-lg bg-red-900/50 border border-red-700/40 px-3 py-2.5 text-red-300 hover:bg-red-800/60 transition-colors text-base"
+                          >
+                            ⚠
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );
                 })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
+      {/* Problem modal */}
       {problemOrderId && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-neutral-900 rounded-2xl p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-3">Signaler un problème</h3>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-black mb-1">Signaler un problème</h3>
+            <p className="text-white/40 text-sm mb-4">Décris le problème rencontré sur cette commande.</p>
             <textarea
-              className="w-full rounded-lg bg-neutral-800 p-3 mb-3"
+              className="w-full rounded-xl bg-white/5 border border-white/10 p-3 mb-4 text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 resize-none"
+              rows={3}
               value={problemNote}
               onChange={(e) => setProblemNote(e.target.value)}
-              placeholder="Ex: rupture de bacon"
+              placeholder="Ex: rupture de bacon, allergie détectée…"
             />
             <div className="flex gap-2">
               <button
-                onClick={() =>
-                  problemOrderId &&
-                  problemMutation.mutate({ orderId: problemOrderId, note: problemNote })
-                }
-                className="flex-1 rounded-lg bg-red-700 py-3 font-bold"
+                onClick={() => problemOrderId && problemMutation.mutate({ orderId: problemOrderId, note: problemNote })}
+                className="flex-1 rounded-xl bg-red-600 hover:bg-red-500 py-3 font-bold transition-colors"
               >
                 Confirmer
               </button>
               <button
                 onClick={() => setProblemOrderId(null)}
-                className="rounded-lg bg-neutral-700 px-4 py-3"
+                className="rounded-xl bg-white/8 hover:bg-white/12 px-4 py-3 transition-colors"
               >
                 Annuler
               </button>
