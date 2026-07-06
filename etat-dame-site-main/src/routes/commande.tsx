@@ -83,7 +83,7 @@ function CommandePage() {
         },
       }),
     onSuccess: (res) => {
-      navigate({ to: "/commande/confirmation", search: { ref: res.orderId, table } });
+      navigate({ to: "/commande-confirmation", search: { ref: res.orderId, table } });
     },
   });
 

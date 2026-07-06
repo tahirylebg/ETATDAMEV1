@@ -6,7 +6,7 @@ const confirmationSearchSchema = z.object({
   table: z.string().optional(),
 });
 
-export const Route = createFileRoute("/commande/confirmation")({
+export const Route = createFileRoute("/commande-confirmation")({
   validateSearch: confirmationSearchSchema,
   head: () => ({
     meta: [{ title: "Commande confirmée — ÉTAT DAME" }, { name: "robots", content: "noindex,nofollow" }],

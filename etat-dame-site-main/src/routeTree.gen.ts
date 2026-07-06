@@ -15,6 +15,7 @@ import { Route as QrRouteImport } from './routes/qr'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as CommandeConfirmationRouteImport } from './routes/commande-confirmation'
 import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
@@ -52,6 +53,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
   path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommandeConfirmationRoute = CommandeConfirmationRouteImport.update({
+  id: '/commande-confirmation',
+  path: '/commande-confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommandeRoute = CommandeRouteImport.update({
   id: '/commande',
   path: '/commande',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/commande': typeof CommandeRoute
+  '/commande-confirmation': typeof CommandeConfirmationRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/menu': typeof MenuRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/commande': typeof CommandeRoute
+  '/commande-confirmation': typeof CommandeConfirmationRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/menu': typeof MenuRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/commande': typeof CommandeRoute
+  '/commande-confirmation': typeof CommandeConfirmationRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/menu': typeof MenuRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/commande'
+    | '/commande-confirmation'
     | '/confidentialite'
     | '/mentions-legales'
     | '/menu'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/commande'
+    | '/commande-confirmation'
     | '/confidentialite'
     | '/mentions-legales'
     | '/menu'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/commande'
+    | '/commande-confirmation'
     | '/confidentialite'
     | '/mentions-legales'
     | '/menu'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   CommandeRoute: typeof CommandeRoute
+  CommandeConfirmationRoute: typeof CommandeConfirmationRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   MenuRoute: typeof MenuRoute
@@ -230,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/commande-confirmation': {
+      id: '/commande-confirmation'
+      path: '/commande-confirmation'
+      fullPath: '/commande-confirmation'
+      preLoaderRoute: typeof CommandeConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/commande': {
       id: '/commande'
       path: '/commande'
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   CommandeRoute: CommandeRoute,
+  CommandeConfirmationRoute: CommandeConfirmationRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   MenuRoute: MenuRoute,
