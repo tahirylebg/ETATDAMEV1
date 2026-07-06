@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
-import { foodMenu, drinkMenu, cocktailMenu } from "@/lib/etat-dame";
 import { createOrder } from "@/lib/api/orders.functions";
 
 const commandeSearchSchema = z.object({
@@ -26,22 +25,115 @@ type CartItem = {
   garniture?: string;
 };
 
-function parsePrice(price: string): number {
-  return Math.round(parseFloat(price.replace("€", "").replace(",", ".").trim()) * 100);
-}
+// Menu statique inline (évite les imports images de etat-dame.ts)
+const MENU_FOOD = [
+  {
+    category: "Bases",
+    items: [
+      { name: "Egg'n Deluxe — Aubergine confite", priceCents: 1500 },
+      { name: "Egg'n Deluxe — Falafels", priceCents: 1600 },
+      { name: "Egg'n Deluxe — Bacon", priceCents: 1600 },
+      { name: "Egg'n Deluxe — Saumon gravlax", priceCents: 1700 },
+      { name: "Egg'n Deluxe — Poulet mariné", priceCents: 1800 },
+      { name: "Egg Roll — Nature", priceCents: 1200 },
+      { name: "Egg Roll — Bacon", priceCents: 1600 },
+      { name: "Egg Roll — Effiloché de boeuf", priceCents: 1800 },
+      { name: "Pancake salé — Saumon gravlax", priceCents: 1700 },
+      { name: "Pancake salé — Bacon fumé", priceCents: 1700 },
+      { name: "Pancake salé — Effiloché de boeuf", priceCents: 1900 },
+      { name: "Avocado Toast — Aubergine confite", priceCents: 1400 },
+      { name: "Avocado Toast — Bacon", priceCents: 1600 },
+      { name: "Avocado Toast — Saumon gravlax", priceCents: 1700 },
+      { name: "Avocado Toast — Poulet mariné", priceCents: 1700 },
+    ],
+  },
+  {
+    category: "Gourmandises",
+    items: [
+      { name: "Shawarma — Poulet mariné", priceCents: 1900 },
+      { name: "Shawarma — Effiloché de boeuf", priceCents: 2100 },
+      { name: "Yaourt Bowl — Classic", priceCents: 1200 },
+      { name: "Yaourt Bowl — Crème de Bueno", priceCents: 1300 },
+      { name: "Yaourt Bowl — Crème de pistache", priceCents: 1600 },
+      { name: "Pancake sucré — Caramel beurre salé", priceCents: 1500 },
+      { name: "Pancake sucré — Nutella banane", priceCents: 1500 },
+      { name: "Pancake sucré — Mangue rôtie", priceCents: 1600 },
+      { name: "Pancake sucré — Crème Bueno", priceCents: 1600 },
+      { name: "Pancake sucré — Crème pistache", priceCents: 1700 },
+      { name: "Cake perdu", priceCents: 1200 },
+      { name: "Cookie — Caramel beurre salé", priceCents: 500 },
+      { name: "Cookie — Crème de pistache", priceCents: 500 },
+    ],
+  },
+];
+
+const MENU_DRINKS = [
+  {
+    category: "Cafés & Thés",
+    items: [
+      { name: "Café court", priceCents: 300 },
+      { name: "Café long", priceCents: 400 },
+      { name: "American Breakfast", priceCents: 500 },
+      { name: "Thé à la menthe", priceCents: 500 },
+      { name: "Chaï latte", priceCents: 700 },
+    ],
+  },
+  {
+    category: "Lattes glacés",
+    items: [
+      { name: "Iced coffee latte", priceCents: 600 },
+      { name: "Iced mango latte", priceCents: 700 },
+      { name: "Iced passion latte", priceCents: 800 },
+      { name: "Iced pistachio latte", priceCents: 800 },
+      { name: "Matcha latte", priceCents: 600 },
+      { name: "Iced matcha latte", priceCents: 600 },
+      { name: "Iced berry matcha", priceCents: 700 },
+      { name: "Iced mango matcha", priceCents: 800 },
+    ],
+  },
+  {
+    category: "Limonades & Jus",
+    items: [
+      { name: "Limonade citron vert", priceCents: 500 },
+      { name: "Limonade orange sanguine", priceCents: 600 },
+      { name: "Limonade passion", priceCents: 700 },
+      { name: "Jus passion", priceCents: 600 },
+      { name: "Jus fruit du dragon", priceCents: 700 },
+      { name: "Eau Orezza", priceCents: 500 },
+      { name: "Bière Corona", priceCents: 600 },
+    ],
+  },
+];
+
+const MENU_COCKTAILS = [
+  {
+    category: "Cocktails signature",
+    items: [
+      { name: "Mango Passion", priceCents: 1100 },
+      { name: "Espresso Martini", priceCents: 1500 },
+      { name: "Koso Dry", priceCents: 1300 },
+      { name: "Ginger'n Matcha", priceCents: 1500 },
+      { name: "Pitaya bliss", priceCents: 1300 },
+      { name: "Mexican Kick", priceCents: 1200 },
+      { name: "Tiramisu", priceCents: 1500 },
+      { name: "Miel & Tabac", priceCents: 1300 },
+      { name: "Fresh Gin", priceCents: 1500 },
+      { name: "Sakura Negroni", priceCents: 1500 },
+      { name: "Pink Panther", priceCents: 1500 },
+    ],
+  },
+];
 
 const TABS = [
-  { id: "food", label: "Carte" },
-  { id: "drinks", label: "Boissons" },
-  { id: "cocktails", label: "Cocktails" },
-] as const;
-
-type Tab = (typeof TABS)[number]["id"];
+  { id: "food" as const, label: "Carte" },
+  { id: "drinks" as const, label: "Boissons" },
+  { id: "cocktails" as const, label: "Cocktails" },
+];
 
 function CommandePage() {
   const { table } = Route.useSearch();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("food");
+  const [tab, setTab] = useState<"food" | "drinks" | "cocktails">("food");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [notes, setNotes] = useState("");
   const [showCart, setShowCart] = useState(false);
@@ -49,11 +141,11 @@ function CommandePage() {
   const totalCents = cart.reduce((s, i) => s + i.unitPriceCents * i.quantity, 0);
   const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
 
-  function addItem(item: Omit<CartItem, "quantity">) {
+  function addItem(key: string, name: string, category: string, priceCents: number) {
     setCart((prev) => {
-      const existing = prev.find((c) => c.key === item.key);
-      if (existing) return prev.map((c) => c.key === item.key ? { ...c, quantity: c.quantity + 1 } : c);
-      return [...prev, { ...item, quantity: 1 }];
+      const existing = prev.find((c) => c.key === key);
+      if (existing) return prev.map((c) => c.key === key ? { ...c, quantity: c.quantity + 1 } : c);
+      return [...prev, { key, name, category, unitPriceCents: priceCents, quantity: 1 }];
     });
   }
 
@@ -87,7 +179,7 @@ function CommandePage() {
     },
   });
 
-  const currentMenu = tab === "food" ? foodMenu : tab === "drinks" ? drinkMenu : cocktailMenu;
+  const currentMenu = tab === "food" ? MENU_FOOD : tab === "drinks" ? MENU_DRINKS : MENU_COCKTAILS;
 
   return (
     <main className="min-h-screen bg-cream pb-32">
@@ -112,7 +204,7 @@ function CommandePage() {
       </header>
 
       {/* Tabs */}
-      <div className="flex gap-1 px-4 pt-4 pb-2">
+      <div className="flex gap-2 px-4 pt-4 pb-2">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -130,15 +222,11 @@ function CommandePage() {
       {/* Menu */}
       <div className="px-4 space-y-6 pt-2">
         {currentMenu.map((group) => (
-          <section key={group.title}>
-            <h2 className="text-base font-black text-cocoa mb-1">{group.title}</h2>
-            {group.composition && (
-              <p className="text-xs text-cocoa/50 mb-2 leading-relaxed">{group.composition}</p>
-            )}
+          <section key={group.category}>
+            <h2 className="text-base font-black text-cocoa mb-2 uppercase tracking-wide text-xs text-cocoa/50">{group.category}</h2>
             <div className="space-y-2">
               {group.items.map((item) => {
-                const priceCents = parsePrice(item.price);
-                const key = `${group.title}::${item.name}`;
+                const key = `${group.category}::${item.name}`;
                 const inCart = cart.find((c) => c.key === key);
                 return (
                   <div
@@ -147,35 +235,28 @@ function CommandePage() {
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-cocoa">{item.name}</p>
-                      {item.note && <p className="text-xs text-cocoa/40 mt-0.5 leading-snug">{item.note}</p>}
-                      <p className="text-sm font-black text-terracotta mt-0.5">{item.price}</p>
+                      <p className="text-sm font-black text-terracotta mt-0.5">{(item.priceCents / 100).toFixed(2)}€</p>
                     </div>
                     {inCart ? (
                       <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={() => removeItem(key)}
                           aria-label={`Retirer un ${item.name}`}
-                          className="h-8 w-8 rounded-full bg-cocoa/10 text-cocoa font-black text-lg flex items-center justify-center hover:bg-cocoa/20"
-                        >
-                          −
-                        </button>
+                          className="h-8 w-8 rounded-full bg-cocoa/10 text-cocoa font-black text-lg flex items-center justify-center"
+                        >−</button>
                         <span className="text-sm font-black text-cocoa w-4 text-center">{inCart.quantity}</span>
                         <button
-                          onClick={() => addItem({ key, name: item.name, category: group.title, unitPriceCents: priceCents })}
+                          onClick={() => addItem(key, item.name, group.category, item.priceCents)}
                           aria-label={`Ajouter un ${item.name}`}
-                          className="h-8 w-8 rounded-full bg-cocoa text-cream font-black text-lg flex items-center justify-center hover:bg-cocoa/80"
-                        >
-                          +
-                        </button>
+                          className="h-8 w-8 rounded-full bg-cocoa text-cream font-black text-lg flex items-center justify-center"
+                        >+</button>
                       </div>
                     ) : (
                       <button
-                        onClick={() => addItem({ key, name: item.name, category: group.title, unitPriceCents: priceCents })}
+                        onClick={() => addItem(key, item.name, group.category, item.priceCents)}
                         aria-label={`Ajouter ${item.name} au panier`}
-                        className="shrink-0 h-8 w-8 rounded-full bg-cocoa text-cream font-black text-lg flex items-center justify-center hover:bg-cocoa/80"
-                      >
-                        +
-                      </button>
+                        className="shrink-0 h-8 w-8 rounded-full bg-cocoa text-cream font-black text-lg flex items-center justify-center"
+                      >+</button>
                     )}
                   </div>
                 );
@@ -195,9 +276,7 @@ function CommandePage() {
         >
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowCart(false)} />
           <div className="relative bg-cream rounded-t-3xl p-5 max-h-[80vh] overflow-y-auto">
-            <h2 id="cart-title" className="text-lg font-black text-cocoa mb-4">
-              Mon panier
-            </h2>
+            <h2 id="cart-title" className="text-lg font-black text-cocoa mb-4">Mon panier</h2>
 
             {cart.length === 0 ? (
               <p className="text-cocoa/40 text-sm text-center py-8">Ton panier est vide.</p>
@@ -212,10 +291,10 @@ function CommandePage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <button onClick={() => removeItem(item.key)} aria-label={`Retirer ${item.name}`}
-                          className="h-7 w-7 rounded-full bg-cocoa/10 text-cocoa font-black flex items-center justify-center text-base hover:bg-cocoa/20">−</button>
+                          className="h-7 w-7 rounded-full bg-cocoa/10 text-cocoa font-black flex items-center justify-center text-base">−</button>
                         <span className="text-sm font-black text-cocoa w-4 text-center">{item.quantity}</span>
-                        <button onClick={() => addItem({ key: item.key, name: item.name, category: item.category, unitPriceCents: item.unitPriceCents, garniture: item.garniture })} aria-label={`Ajouter ${item.name}`}
-                          className="h-7 w-7 rounded-full bg-cocoa text-cream font-black flex items-center justify-center text-base hover:bg-cocoa/80">+</button>
+                        <button onClick={() => addItem(item.key, item.name, item.category, item.unitPriceCents)} aria-label={`Ajouter ${item.name}`}
+                          className="h-7 w-7 rounded-full bg-cocoa text-cream font-black flex items-center justify-center text-base">+</button>
                         <span className="text-sm font-bold text-cocoa w-14 text-right">
                           {((item.unitPriceCents * item.quantity) / 100).toFixed(2)}€
                         </span>
@@ -228,9 +307,9 @@ function CommandePage() {
                   <label htmlFor="order-notes" className="block text-xs font-bold text-cocoa/60 mb-1 uppercase tracking-wide">Note (optionnel)</label>
                   <textarea
                     id="order-notes"
-                    className="w-full rounded-xl border border-cocoa/20 bg-white px-3 py-2 text-sm placeholder:text-cocoa/30 focus:outline-none focus:border-cocoa/40 resize-none"
+                    className="w-full rounded-xl border border-cocoa/20 bg-white px-3 py-2 text-sm placeholder:text-cocoa/30 focus:outline-none resize-none"
                     rows={2}
-                    placeholder="Allergie, préférence de cuisson…"
+                    placeholder="Allergie, préférence…"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                   />
@@ -248,9 +327,9 @@ function CommandePage() {
                 <button
                   onClick={() => orderMutation.mutate()}
                   disabled={orderMutation.isPending}
-                  className="w-full rounded-full bg-cocoa text-cream font-black py-4 text-base disabled:opacity-60 hover:bg-cocoa/90 transition-colors"
+                  className="w-full rounded-full bg-cocoa text-cream font-black py-4 text-base disabled:opacity-60"
                 >
-                  {orderMutation.isPending ? "Envoi en cours…" : `Commander · ${(totalCents / 100).toFixed(2)}€`}
+                  {orderMutation.isPending ? "Envoi…" : `Commander · ${(totalCents / 100).toFixed(2)}€`}
                 </button>
               </>
             )}
@@ -258,7 +337,7 @@ function CommandePage() {
         </div>
       )}
 
-      {/* Sticky bottom bar when cart not empty */}
+      {/* Bottom bar */}
       {totalItems > 0 && !showCart && (
         <div className="fixed bottom-0 inset-x-0 z-30 p-4 bg-gradient-to-t from-cream via-cream/90 to-transparent">
           <button
